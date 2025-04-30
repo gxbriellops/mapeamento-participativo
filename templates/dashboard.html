@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}EnviroMap - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Dashboard de Análise</h1>
+        <p class="lead">Estatísticas e visualizações dos problemas ambientais reportados.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('views.report_form') }}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Reportar Novo Problema
+        </a>
+    </div>
+</div>
+
+<!-- Cartões com estatísticas gerais -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center mb-3">
+            <div class="card-body">
+                <h3 class="display-4 fw-bold text-success">{{ total_reports }}</h3>
+                <p class="text-muted mb-0">Total de Relatos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center mb-3">
+            <div class="card-body">
+                <h3 class="display-4 fw-bold text-warning">
+                    {% set verified = 0 %}
+                    {% for type, count in problem_types %}
+                        {% if type == 'queimada' %}
+                            {{ count }}
+                        {% endif %}
+                    {% endfor %}
+                </h3>
+                <p class="text-muted mb-0">Queimadas Reportadas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center mb-3">
+            <div class="card-body">
+                <h3 class="display-4 fw-bold text-danger">
+                    {% set high_severity = 0 %}
+                    {% for severity, count in severity_counts %}
+                        {% if severity >= 4 %}
+                            {% set high_severity = high_severity + count %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ high_severity }}
+                </h3>
+                <p class="text-muted mb-0">Problemas de Alta Severidade</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos e tabelas de análise -->
+<div class="row">
+    <!-- Distribuição por Tipo de Problema -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Distribuição por Tipo de Problema</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Problema</th>
+                                <th class="text-end">Quantidade</th>
+                                <th class="text-end">Porcentagem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for type, count in problem_types %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2 severity-chip" style="background-color: 
+                                                {% if type == 'queimada' %}#d9534f
+                                                {% elif type == 'fumaca' %}#f0ad4e
+                                                {% elif type == 'desmatamento' %}#5cb85c
+                                                {% elif type == 'poluicao' %}#5bc0de
+                                                {% else %}#6c757d{% endif %};">
+                                                &nbsp;
+                                            </span>
+                                            {{ type|capitalize }}
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ count }}</td>
+                                    <td class="text-end">{{ (count / total_reports * 100)|round(1) }}%</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Distribuição por Severidade -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Distribuição por Severidade</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nível de Severidade</th>
+                                <th class="text-end">Quantidade</th>
+                                <th class="text-end">Porcentagem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for severity, count in severity_counts %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2 severity-chip severity-{{ severity }}">&nbsp;</span>
+                                            {% if severity == 1 %}
+                                                {{ severity }} - Muito Baixa
+                                            {% elif severity == 2 %}
+                                                {{ severity }} - Baixa
+                                            {% elif severity == 3 %}
+                                                {{ severity }} - Média
+                                            {% elif severity == 4 %}
+                                                {{ severity }} - Alta
+                                            {% elif severity == 5 %}
+                                                {{ severity }} - Muito Alta
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ count }}</td>
+                                    <td class="text-end">{{ (count / total_reports * 100)|round(1) }}%</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Relatórios recentes -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Relatos Recentes</h5>
+                <a href="{{ url_for('views.index') }}" class="btn btn-sm btn-outline-primary">Ver no Mapa</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Tipo</th>
+                                <th>Severidade</th>
+                                <th>Localização</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set reports = [] %}
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+                                        Sem dados disponíveis.
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Se precisar de scripts para visualizações mais complexas como gráficos, adicione aqui -->
+{% endblock %}

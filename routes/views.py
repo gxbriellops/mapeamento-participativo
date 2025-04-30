@@ -1,11 +1,7 @@
 from flask import Blueprint, render_template
-from models import EnvironmentalReport
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from models import db, EnvironmentalReport
 
 views_bp = Blueprint('views', __name__)
-
 @views_bp.route('/')
 def index():
     """Página inicial com o mapa."""
