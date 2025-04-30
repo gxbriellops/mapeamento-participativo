@@ -29,12 +29,14 @@
         <div class="card shadow-sm text-center mb-3">
             <div class="card-body">
                 <h3 class="display-4 fw-bold text-warning">
-                    {% set verified = 0 %}
+                    {% set queimada_count = 0 %}
                     {% for type, count in problem_types %}
                         {% if type == 'queimada' %}
-                            {{ count }}
+                            {% set queimada_count = count %}
                         {% endif %}
                     {% endfor %}
+                    {{ queimada_count }}
+                </h3>
                 </h3>
                 <p class="text-muted mb-0">Queimadas Reportadas</p>
             </div>
@@ -82,10 +84,10 @@
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <span class="me-2 severity-chip" style="background-color: 
-                                                {% if type == 'queimada' %}#d9534f
-                                                {% elif type == 'fumaca' %}#f0ad4e
-                                                {% elif type == 'desmatamento' %}#5cb85c
-                                                {% elif type == 'poluicao' %}#5bc0de
+                                                {% if type == 'queimada' %}#ff9800
+                                                {% elif type == 'fumaca' %}#ffc107
+                                                {% elif type == 'desmatamento' %}#28a745
+                                                {% elif type == 'poluicao' %}#17a2b8
                                                 {% else %}#6c757d{% endif %};">
                                                 &nbsp;
                                             </span>
