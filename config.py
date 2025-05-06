@@ -9,11 +9,17 @@ class Config:
     # Chave secreta para sessões, cookies, etc.
     SECRET_KEY = os.environ.get('SECRET_KEY', 'desenvolvimento-secreto')
     
-    # Configurações do banco de dados SQLite
+    # Configurações do banco de dados
+    # Usa PostgreSQL em produção e SQLite em desenvolvimento
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URL', 
         'sqlite:///instance/database.db'
     )
+    
+    # Ajuste para o PostgreSQL do Render (caso o prefixo seja postgres://)
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+        
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Pasta para uploads de imagens

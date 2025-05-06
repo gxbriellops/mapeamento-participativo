@@ -4,19 +4,21 @@ from flask_cors import CORS
 from models import db, EnvironmentalReport
 from routes.api import api_bp
 from routes.views import views_bp
+from config import ProductionConfig, DevelopmentConfig
 
 def create_app(test_config=None):
     # Cria e configura a aplicação Flask
     app = Flask(__name__, instance_relative_config=True)
     
-    # Configurações básicas
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(app.instance_path, 'database.db'),
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        UPLOAD_FOLDER=os.path.join(app.static_folder, 'uploads'),
-    )
-
+    # Verifica o ambiente para selecionar a configuração adequada
+    env = os.environ.get('FLASK_ENV', 'development')
+    
+    # Configurações com base no ambiente
+    if env == 'production':
+        app.config.from_object(ProductionConfig)
+    else:
+        app.config.from_object(DevelopmentConfig)
+    
     # Garante que a pasta instance existe
     try:
         os.makedirs(app.instance_path)
@@ -45,4 +47,5 @@ def create_app(test_config=None):
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True, host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
